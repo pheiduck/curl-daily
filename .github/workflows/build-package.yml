@@ -1,0 +1,111 @@
+name: 'Manjaro Package CI'
+
+on:
+  schedule:
+    - cron: "* 5 * * *"
+  
+jobs:
+  build_package:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:  
+        PACKAGE: [curl-daily]
+        REPO: [pheiduck]
+    steps:
+      - id: install_build-dependencies
+        run: |
+          sudo apt-fast update
+          sudo apt-fast -y install \
+          build-essential \
+          cmake \
+          fakeroot \
+          git \
+          libarchive-dev \
+          libarchive-tools \
+          libcurl4-openssl-dev \
+          libgpgme-dev \
+          libssl-dev \
+          zip \
+          zstd
+          sudo python3 -m pip install meson
+          sudo python3 -m pip install ninja
+      - id: install_pacman
+        run: |
+          sudo git clone -q --depth 1 https://gitlab.manjaro.org/packages/core/pacman.git
+          pushd pacman
+          sudo git clone -q --depth 1 https://gitlab.archlinux.org/pacman/pacman.git
+          pushd pacman
+          sudo patch -p1 -i ../pacman-sync-first-option.patch
+          sudo meson --prefix=/usr \
+                      --buildtype=plain \
+                      -Ddoc=disabled \
+                      -Ddoxygen=enabled \
+                      -Dscriptlet-shell=/usr/bin/bash \
+                      -Dldconfig=/usr/bin/ldconfig \
+                      build
+          sudo meson compile -C build
+          sudo meson install -C build
+          popd
+          sudo install -m644 pacman.conf /etc/pacman.conf
+          sudo install -m644 makepkg.conf /etc/
+          sudo mkdir -p /etc/pacman.d
+          sudo touch /etc/pacman.d/mirrorlist
+          popd
+      - id: install_keyrings
+        run: |
+          sudo install -dm755 /usr/share/pacman/keyrings/
+          sudo git clone -q --depth 1 https://gitlab.manjaro.org/packages/core/manjaro-keyring.git
+          pushd manjaro-keyring
+          sudo install -m0644 manjaro.gpg /usr/share/pacman/keyrings/
+          sudo install -m0644 manjaro-trusted /usr/share/pacman/keyrings/
+          sudo install -m0644 manjaro-trusted /usr/share/pacman/keyrings/
+          popd
+          
+          mkdir -p archlinux-keyring
+          pushd archlinux-keyring
+          wget --quiet https://archlinux.org/packages/core/any/archlinux-keyring/download -O /tmp/archlinux-keyring.tar.zst
+          tar --use-compress-program=unzstd --strip-components=4 --wildcards -xvf /tmp/archlinux-keyring.tar.zst usr/share/pacman/keyrings/*
+          sudo install -m0644 archlinux.gpg /usr/share/pacman/keyrings/
+          sudo install -m0644 archlinux-trusted /usr/share/pacman/keyrings/
+          sudo install -m0644 archlinux-revoked /usr/share/pacman/keyrings/
+          popd
+          sudo pacman-key --init
+          sudo pacman-key --populate archlinux manjaro
+      - id: install_manjaro-chrootbuild
+        run: |
+          sudo git clone -q --depth 1 https://gitlab.manjaro.org/tools/development-tools/manjaro-chrootbuild
+          pushd manjaro-chrootbuild
+          sudo ./install.sh "PACKAGER = Christian Hesse <eworm@archlinux.org>"
+          popd
+      - id: clone_repo
+        env:
+          PACKAGE: curl-daily
+          REPO: pheiduck
+        run: |
+          sudo git clone -q https://github.com/${{ matrix.repo }}/${{ matrix.package }}.git
+      - id: build_package
+        run: |
+          sudo chrootbuild -p ${{ matrix.package }}
+      - id: time
+        uses: boredland/get-time-action@master
+        with:
+          format: 'YYYYMMDD'
+      - id: publish_package
+        shell: bash -O extglob {0}
+        run: |
+          _ver=$(grep ^pkgver= ${{ matrix.package }}/PKGBUILD | cut -d'=' -f2)
+          _tag=${_ver}-${{ steps.time.outputs.time }}
+          echo ${{ github.token }} | gh auth login --with-token
+          gh release create ${_tag} --title ${_tag} --repo ${{ github.repository }} --notes "automated release" || echo "release already exists"
+          GITHUB_LINK=https://github.com/${GITHUB_REPOSITORY}/releases/download/${_tag}
+          gh release upload ${_tag} --repo ${GITHUB_REPOSITORY} --clobber ./*.zst
+      - name: Cleanup Releases
+        uses: dev-drprasad/delete-older-releases@master
+        with:
+          ###### EDIT HERE ######
+          repo: pheiduck/curl-daily
+          #######################
+          keep_latest: 1
+          delete_tags: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
