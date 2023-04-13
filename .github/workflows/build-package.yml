@@ -27,7 +27,7 @@ jobs:
           libssl-dev \
           zip \
           zstd
-          sudo python3 -m pip install meson ninja
+          sudo python3 -m pip -q install meson ninja
       - id: install_pacman
         run: |
           sudo git clone -q --depth 1 https://gitlab.manjaro.org/packages/core/pacman.git
