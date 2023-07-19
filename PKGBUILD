@@ -9,7 +9,7 @@
 
 pkgbase=curl
 pkgname=(curl libcurl-compat libcurl-gnutls)
-pkgver=8.2.0
+pkgver=8.2.1
 pkgrel=$(date '+%Y%m%d')
 pkgdesc='An URL retrieval utility and library'
 arch=('any')
