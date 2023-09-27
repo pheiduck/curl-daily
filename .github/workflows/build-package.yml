@@ -14,8 +14,8 @@ jobs:
     steps:
       - id: install_build-dependencies
         run: |
-          sudo apt-fast update
-          sudo apt-fast -y install \
+          sudo apt-get update
+          sudo apt-get -y install \
           build-essential \
           cmake \
           fakeroot \
