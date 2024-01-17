@@ -13,20 +13,11 @@ jobs:
         REPO: [pheiduck]
     steps:
       - id: install_build-dependencies
+        uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: build-essential cmake fakeroot git libarchive-dev libarchive-tools libcurl4-openssl-dev libgpgme-dev libssl-dev libarchive-dev zip zstd
+      - id: install_python-dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get -y install \
-          build-essential \
-          cmake \
-          fakeroot \
-          git \
-          libarchive-dev \
-          libarchive-tools \
-          libcurl4-openssl-dev \
-          libgpgme-dev \
-          libssl-dev \
-          zip \
-          zstd
           sudo python3 -m pip -q install meson ninja
       - id: install_pacman
         run: |
