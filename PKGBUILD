@@ -9,7 +9,7 @@
 
 pkgbase=curl
 pkgname=(curl libcurl-compat libcurl-gnutls)
-pkgver=8.7.0
+pkgver=$(curl -s https://raw.githubusercontent.com/curl/curl/master/RELEASE-NOTES | sed -n "1p" | cut -c18,19,20,21,22)
 pkgrel=$(date '+%Y%m%d')
 pkgdesc='An URL retrieval utility and library'
 arch=('any')
