@@ -12,6 +12,11 @@ jobs:
         PACKAGE: [curl-daily]
         REPO: [pheiduck]
     steps:
+      - name: Free disk space
+        run: |
+          sudo mv /usr/local /usr/local.trash
+          sudo mv /opt/hostedtoolcache /opt/hostedtoolcache.trash
+          sudo systemd-run rm -rf /usr/local.trash /opt/hostedtoolcache.trash
       - id: install_build-dependencies
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
