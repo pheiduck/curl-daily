@@ -70,7 +70,7 @@ jobs:
         run: |
           sudo git clone -q --depth 1 https://gitlab.manjaro.org/tools/development-tools/manjaro-chrootbuild
           pushd manjaro-chrootbuild
-          sudo ./install.sh "PACKAGER = Christian Hesse <eworm@archlinux.org>"
+          sudo ./install.sh "PACKAGER = Leonidas Spyropoulos <artafinde@archlinux.org>"
           popd
       - id: clone_repo
         env:
