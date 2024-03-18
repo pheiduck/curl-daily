@@ -16,6 +16,11 @@ jobs:
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
           packages: build-essential cmake fakeroot git libarchive-dev libarchive-tools libcurl4-openssl-dev libgpgme-dev libssl-dev libarchive-dev zip zstd
+      - name: Free disk space
+        run: |
+          sudo mv -v /usr/local /usr/local.trash
+          sudo mv -v /opt/hostedtoolcache /opt/hostedtoolcache.trash
+          sudo systemd-run rm -rf /usr/local.trash /opt/hostedtoolcache.trash
       - id: install_python-dependencies
         run: |
           sudo python3 -m pip -q install meson ninja
