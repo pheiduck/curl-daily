@@ -11,6 +11,7 @@ pkgbase=curl
 pkgname=(curl libcurl-compat libcurl-gnutls)
 pkgver=$(curl -s https://raw.githubusercontent.com/curl/curl/master/RELEASE-NOTES | sed -n "1p" | cut -c18-22)
 pkgrel=$(date '+%Y%m%d')
+epoch=1
 pkgdesc='An URL retrieval utility and library'
 arch=('any')
 url='https://curl.se'
