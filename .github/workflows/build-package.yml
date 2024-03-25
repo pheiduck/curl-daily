@@ -66,6 +66,12 @@ jobs:
           popd
           sudo pacman-key --init
           sudo pacman-key --populate archlinux manjaro
+      - name: Cache chrootbuild
+        id: cache-chrootbuild
+        uses: john-shaffer/cache@main
+        with:
+          path: /var/lib/chrootbuild
+          key: ${{ runner.os }}-chrootbuild
       - id: install_manjaro-chrootbuild
         run: |
           sudo git clone -q --depth 1 https://gitlab.manjaro.org/tools/development-tools/manjaro-chrootbuild
