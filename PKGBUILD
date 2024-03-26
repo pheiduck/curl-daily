@@ -40,7 +40,7 @@ _configure_options=(
 )
 
 build() {
-  mkdir build-curl{,-compat,-gnutls}
+  mkdir -p build-curl{,-compat,-gnutls}
 
   # build curl
   cd "${srcdir}"/build-curl
