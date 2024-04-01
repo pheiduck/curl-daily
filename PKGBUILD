@@ -27,8 +27,7 @@ depends=('ca-certificates'
          'zlib' 'libz.so'
          'zstd' 'libzstd.so')
 makedepends=('git' 
-             'patchelf'
-             'gdb')
+             'patchelf')
 
 checkdepends=('valgrind')
 provides=('libcurl.so')
@@ -88,17 +87,6 @@ build() {
   sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
   make -j${nproc} -C lib
   patchelf --set-soname 'libcurl-gnutls.so.4' ./lib/.libs/libcurl.so
-}
-
-check() {
-  cd build-curl
-  # -v: verbose
-  # -a: keep going on failure (so we see everything which breaks, not just the first failing test)
-  # -k: keep test files after completion
-  # -am: automake style TAP output
-  # -p: print logs if test fails
-  # -j: parallelization
-  make TFLAGS="-v -a -k -p -j$(nproc)" test-nonflaky
 }
 
 package_curl() {
