@@ -98,8 +98,7 @@ check() {
   # -am: automake style TAP output
   # -p: print logs if test fails
   # -j: parallelization
-  # disable test 433, since it requires the glibc debug info
-  make TFLAGS="-v -a -k -p -j$(nproc) !357" test-nonflaky
+  make TFLAGS="-v -a -k -p -j$(nproc)" test-nonflaky
 }
 
 package_curl() {
