@@ -28,8 +28,6 @@ depends=('ca-certificates'
          'zstd' 'libzstd.so')
 makedepends=('git' 
              'patchelf')
-
-checkdepends=('valgrind')
 provides=('libcurl.so')
 validpgpkeys=('27EDEAF22F3ABCEB50DB9A125CC908FDB71E12C2') # Daniel Stenberg
 source=("${url}/snapshots/${pkgbase}-${pkgver}-${pkgrel}.tar.xz")
