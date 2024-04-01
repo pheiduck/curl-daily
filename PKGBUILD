@@ -12,7 +12,7 @@ pkgname=(curl libcurl-compat libcurl-gnutls)
 pkgver=$(curl -s https://raw.githubusercontent.com/curl/curl/master/RELEASE-NOTES | sed -n "1p" | cut -c18-22)
 pkgrel=$(date '+%Y%m%d')
 epoch=1
-pkgdesc='An URL retrieval utility and library'
+pkgdesc='command line tool and library for transferring data with URLs'
 arch=('any')
 url='https://curl.se'
 license=('MIT')
@@ -21,46 +21,50 @@ depends=('ca-certificates' 'brotli' 'libbrotlidec.so' 'krb5' 'libgssapi_krb5.so'
          'openssl' 'zlib' 'zstd' 'libzstd.so')
 makedepends=('patchelf')
 provides=('libcurl.so')
-source=("${url}/snapshots/${pkgbase}-${pkgver}-${pkgrel}.tar.xz")
 sha512sums=('SKIP')
 validpgpkeys=('27EDEAF22F3ABCEB50DB9A125CC908FDB71E12C2') # Daniel Stenberg
-
-_configure_options=(
-  --prefix='/usr'
-  --mandir='/usr/share/man'
-  --disable-ldap
-  --disable-ldaps
-  --disable-manual
-  --enable-ipv6
-  --enable-threaded-resolver
-  --with-gssapi
-  --with-libssh2
-  --with-random='/dev/urandom'
-  --with-ca-bundle='/etc/ssl/certs/ca-certificates.crt'
-)
+source=("${url}/snapshots/${pkgbase}-${pkgver}-${pkgrel}.tar.xz")
 
 build() {
+  local _configure_options=(
+    --prefix='/usr'
+    --mandir='/usr/share/man'
+    --disable-ldap
+    --disable-ldaps
+    --disable-manual
+    --enable-ipv6
+    --enable-threaded-resolver
+    --with-gssapi
+    --with-libssh2
+    --with-random='/dev/urandom'
+    --with-ca-bundle='/etc/ssl/certs/ca-certificates.crt'
+  )
+
   mkdir -p build-curl{,-compat,-gnutls}
 
   # build curl
   cd "${srcdir}"/build-curl
 
   "${srcdir}/${pkgbase}-${pkgver}-${pkgrel}"/configure \
-    "${_configure_options[@]}" \
+  "${_configure_options[@]}" \
+    --enable-versioned-symbols \
+    --with-fish-functions-dir=/usr/share/fish/vendor_completions.d/ \
     --with-openssl \
-    --enable-versioned-symbols
+    --with-openssl-quic \
+    --with-zsh-functions-dir=/usr/share/zsh/site-functions/
   sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
   make -j${nproc}
-
   # build libcurl-compat
   cd "${srcdir}"/build-curl-compat
 
   "${srcdir}/${pkgbase}-${pkgver}-${pkgrel}"/configure \
     "${_configure_options[@]}" \
+    --disable-versioned-symbols \
     --with-openssl \
-    --disable-versioned-symbols
+    --with-openssl-quic
   sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
   make -j${nproc} -C lib
+  patchelf --set-soname 'libcurl-compat.so.4' ./lib/.libs/libcurl.so
 
   # build libcurl-gnutls
   cd "${srcdir}"/build-curl-gnutls
@@ -68,14 +72,29 @@ build() {
   "${srcdir}/${pkgbase}-${pkgver}-${pkgrel}"/configure \
     "${_configure_options[@]}" \
     --disable-versioned-symbols \
-    --without-openssl \
-    --with-gnutls
+    --with-gnutls \
+    --without-openssl
   sed -i -e 's/ -shared / -Wl,-O1,--as-needed\0/g' libtool
   make -j${nproc} -C lib
   patchelf --set-soname 'libcurl-gnutls.so.4' ./lib/.libs/libcurl.so
 }
 
+check() {
+  cd build-curl
+  # -v: verbose
+  # -a: keep going on failure (so we see everything which breaks, not just the first failing test)
+  # -k: keep test files after completion
+  # -am: automake style TAP output
+  # -p: print logs if test fails
+  # -j: parallelization
+  # disable test 433, since it requires the glibc debug info
+  make TFLAGS="-v -a -k -p -j$(nproc) !433" test-nonflaky
+}
+
 package_curl() {
+  depends+=('openssl' 'libcrypto.so' 'libssl.so')
+  provides=('libcurl.so')
+
   cd build-curl
 
   make -j${nproc} DESTDIR="${pkgdir}" install
@@ -88,8 +107,9 @@ package_curl() {
 }
 
 package_libcurl-compat() {
-  pkgdesc='An URL retrieval library (without versioned symbols)'
-  depends=('curl' 'openssl')
+  pkgdesc='command line tool and library for transferring data with URLs (no versioned symbols)'
+  depends=('curl')
+  provides=('libcurl-compat.so')
 
   cd "${srcdir}"/build-curl-compat
 
@@ -99,6 +119,7 @@ package_libcurl-compat() {
   rm "${pkgdir}"/usr/lib/libcurl.{a,so}*
   for version in 3 4.0.0 4.1.0 4.2.0 4.3.0 4.4.0 4.5.0 4.6.0 4.7.0; do
     ln -s libcurl-compat.so.4.8.0 "${pkgdir}"/usr/lib/libcurl.so.${version}
+    ln -s libcurl-compat.so.4.8.0 "${pkgdir}"/usr/lib/libcurl-compat.so.${version}
   done
 
   install -dm 0755 "${pkgdir}"/usr/share/licenses
@@ -106,8 +127,9 @@ package_libcurl-compat() {
 }
 
 package_libcurl-gnutls() {
-  pkgdesc='An URL retrieval library (without versioned symbols and linked against gnutls)'
+  pkgdesc='command line tool and library for transferring data with URLs (no versioned symbols, linked against gnutls)'
   depends=('curl' 'gnutls')
+  provides=('libcurl-gnutls.so')
 
   cd "${srcdir}"/build-curl-gnutls
 
