@@ -19,11 +19,12 @@ license=('MIT')
 depends=('ca-certificates' 'brotli' 'libbrotlidec.so' 'krb5' 'libgssapi_krb5.so'
          'libidn2' 'libidn2.so' 'libnghttp2' 'libpsl' 'libpsl.so' 'libssh2' 'libssh2.so'
          'openssl' 'zlib' 'zstd' 'libzstd.so')
-makedepends=('patchelf')
+makedepends=('git' 'patchelf')
+checkdepends=('valgrind')
 provides=('libcurl.so')
-sha512sums=('SKIP')
 validpgpkeys=('27EDEAF22F3ABCEB50DB9A125CC908FDB71E12C2') # Daniel Stenberg
 source=("${url}/snapshots/${pkgbase}-${pkgver}-${pkgrel}.tar.xz")
+sha512sums=('SKIP')
 
 build() {
   local _configure_options=(
