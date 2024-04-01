@@ -28,7 +28,7 @@ depends=('ca-certificates'
          'zstd' 'libzstd.so')
 makedepends=('git' 
              'patchelf'
-             'glibc')
+             'gdb')
 
 checkdepends=('valgrind')
 provides=('libcurl.so')
