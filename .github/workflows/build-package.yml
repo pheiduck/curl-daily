@@ -12,6 +12,7 @@ jobs:
         PACKAGE: [curl-daily]
         REPO: [pheiduck]
     steps:
+      - run: sudo rm -f /etc/apt/sources.list.d/*
       - id: install_build-dependencies
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
