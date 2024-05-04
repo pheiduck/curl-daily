@@ -101,7 +101,6 @@ jobs:
           echo ${{ github.token }} | gh auth login --with-token
           gh release create ${_tag} --title ${_tag} --repo ${{ github.repository }} --notes "automated release" || echo "release already exists"
           GITHUB_LINK=https://github.com/${GITHUB_REPOSITORY}/releases/download/${_tag}
-          gh attestation verify ./*.zst --repo ${GITHUB_REPOSITORY} || true
           gh release upload ${_tag} --repo ${GITHUB_REPOSITORY} --clobber ./*.zst
       - name: Cleanup Releases
         uses: dev-drprasad/delete-older-releases@master
