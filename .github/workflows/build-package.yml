@@ -102,6 +102,10 @@ jobs:
           gh release create ${_tag} --title ${_tag} --repo ${{ github.repository }} --notes "automated release" || echo "release already exists"
           GITHUB_LINK=https://github.com/${GITHUB_REPOSITORY}/releases/download/${_tag}
           gh release upload ${_tag} --repo ${GITHUB_REPOSITORY} --clobber ./*.zst
+      - name: Verify Package
+        uses: github-early-access/generate-build-provenance@main
+        with:
+          subject-path: './*.zst'
       - name: Cleanup Releases
         uses: dev-drprasad/delete-older-releases@master
         with:
