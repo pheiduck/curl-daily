@@ -31,7 +31,6 @@ jobs:
           pushd pacman
           sudo git clone -q --depth 1 https://gitlab.archlinux.org/pacman/pacman.git
           pushd pacman
-          sudo patch -p1 -i ../pacman-sync-first-option.patch
           sudo meson --prefix=/usr \
                       --buildtype=plain \
                       -Ddoc=disabled \
