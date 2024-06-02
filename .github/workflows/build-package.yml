@@ -95,7 +95,7 @@ jobs:
       - id: publish_package
         shell: bash -O extglob {0}
         run: |
-          _ver=$(curl -s https://raw.githubusercontent.com/curl/curl/master/RELEASE-NOTES | sed -n "1p" | cut -c18-22)
+          _ver=$(curl -s https://raw.githubusercontent.com/curl/curl/master/include/curl/curlver.h | sed -n "35p" | cut -c26-30)
           _tag=${_ver}-${{ steps.time.outputs.time }}
           echo ${{ github.token }} | gh auth login --with-token
           gh release create ${_tag} --title ${_tag} --repo ${{ github.repository }} --notes "automated release" || echo "release already exists"
