@@ -80,14 +80,7 @@ jobs:
           REPO: pheiduck
         run: |
           sudo git clone -q https://github.com/${{ matrix.repo }}/${{ matrix.package }}.git
-      - name: Cache chrootbuild
-        id: cache-chrootbuild
-        uses: john-shaffer/cache@main
-        with:
-          path: /var/lib/chrootbuild
-          key: ${{ runner.os }}-chrootbuild
       - id: build_package
-        if: ${{ steps.cache-chrootbuild.outputs.cache-hit != 'true' || 'true' }}
         run: |
           sudo chrootbuild -p ${{ matrix.package }}
       - id: time
