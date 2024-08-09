@@ -1,6 +1,7 @@
 name: 'Manjaro Package CI'
 
 on:
+  workflow_dispatch:
   schedule:
     - cron: "* 5 * * *"
   
