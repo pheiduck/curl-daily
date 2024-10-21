@@ -8,9 +8,8 @@
 # Contributor: Daniel J Griffiths <ghost1227@archlinux.us>
 
 pkgbase=curl
-pkgname=(curl libcurl-compat libcurl-gnutls)
-pkgver=$(curl -s https://raw.githubusercontent.com/curl/curl/master/include/curl/curlver.h | awk -F\" '/#define LIBCURL_VERSION/ {print $2}' | sed 's/-DEV//')
-pkgrel=$(date '+%Y%m%d')
+pkgname=(curl-daily libcurl-compat-daily libcurl-gnutls-daily)
+pkgrel=1
 epoch=1
 pkgdesc='command line tool and library for transferring data with URLs'
 arch=('any')
@@ -29,9 +28,15 @@ depends=('ca-certificates'
 makedepends=('git' 
              'patchelf')
 provides=('libcurl.so')
+conflicts=('curl' 'libcurl-compat' 'libcurl-gnutls')
 validpgpkeys=('27EDEAF22F3ABCEB50DB9A125CC908FDB71E12C2') # Daniel Stenberg
 source=("${url}/snapshots/${pkgbase}-${pkgver}-${pkgrel}.tar.xz")
 sha512sums=('SKIP')
+
+pkgver() {
+  curl -s https://raw.githubusercontent.com/curl/curl/master/include/curl/curlver.h | \
+  awk -F\" '/#define LIBCURL_VERSION/ {print $2}' | sed 's/-DEV//'
+}
 
 build() {
   local _configure_options=(
@@ -87,7 +92,7 @@ build() {
   patchelf --set-soname 'libcurl-gnutls.so.4' ./lib/.libs/libcurl.so
 }
 
-package_curl() {
+package_curl-daily() {
   depends+=('openssl' 'libcrypto.so' 'libssl.so')
   provides=('libcurl.so')
 
@@ -96,15 +101,15 @@ package_curl() {
   make -j${nproc} DESTDIR="${pkgdir}" install
   make -j${nproc} DESTDIR="${pkgdir}" install -C scripts
 
-    cd "${srcdir}/${pkgname}-${pkgver}-${pkgrel}"
+  cd "${srcdir}/${pkgname}-${pkgver}-${pkgrel}"
 
   # license
   install -Dt "${pkgdir}/usr/share/licenses/$pkgname" -m0644 COPYING
 }
 
-package_libcurl-compat() {
+package_libcurl-compat-daily() {
   pkgdesc='command line tool and library for transferring data with URLs (no versioned symbols)'
-  depends=('curl')
+  depends=('curl-daily')
   provides=('libcurl-compat.so')
 
   cd "${srcdir}"/build-curl-compat
@@ -119,12 +124,12 @@ package_libcurl-compat() {
   done
 
   install -dm 0755 "${pkgdir}"/usr/share/licenses
-  ln -s curl "${pkgdir}"/usr/share/licenses/libcurl-compat
+  ln -s curl "${pkgdir}"/usr/share/licenses/libcurl-compat-daily
 }
 
-package_libcurl-gnutls() {
+package_libcurl-gnutls-daily() {
   pkgdesc='command line tool and library for transferring data with URLs (no versioned symbols, linked against gnutls)'
-  depends=('curl' 'gnutls')
+  depends=('curl-daily' 'gnutls')
   provides=('libcurl-gnutls.so')
 
   cd "${srcdir}"/build-curl-gnutls
@@ -139,5 +144,5 @@ package_libcurl-gnutls() {
   done
 
   install -dm 0755 "${pkgdir}"/usr/share/licenses
-  ln -s curl "${pkgdir}"/usr/share/licenses/libcurl-gnutls
+  ln -s curl "${pkgdir}"/usr/share/licenses/libcurl-gnutls-daily
 }
