@@ -98,12 +98,10 @@ package_curl-daily() {
   depends+=('openssl' 'libcrypto.so' 'libssl.so')
   provides=('libcurl.so')
 
-  cd build-curl
+  cd "${srcdir}"/build-curl
 
   make -j${nproc} DESTDIR="${pkgdir}" install
   make -j${nproc} DESTDIR="${pkgdir}" install -C scripts
-
-  cd "${srcdir}/${pkgbase}"
 
   # license
   install -Dt "${pkgdir}/usr/share/licenses/$pkgname" -m0644 COPYING
