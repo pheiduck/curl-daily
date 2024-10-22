@@ -31,7 +31,8 @@ makedepends=('git'
 provides=('libcurl.so')
 conflicts=('curl' 'libcurl-compat' 'libcurl-gnutls')
 validpgpkeys=('27EDEAF22F3ABCEB50DB9A125CC908FDB71E12C2') # Daniel Stenberg
-source=("${url}/snapshots/${pkgbase}-${pkgver}-${pkgrel}.tar.xz")
+date=$(date '+%Y%m%d')
+source=("${url}/snapshots/${pkgbase}-${pkgver}-${date}.tar.xz")
 sha512sums=('SKIP')
 
 pkgver() {
