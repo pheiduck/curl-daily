@@ -103,7 +103,7 @@ package_curl-daily() {
   make -j${nproc} DESTDIR="${pkgdir}" install
   make -j${nproc} DESTDIR="${pkgdir}" install -C scripts
 
-  cd "${srcdir}/${pkgname}-${pkgver}-${pkgrel}"
+  cd "${srcdir}/${pkgname}"
 
   # license
   install -Dt "${pkgdir}/usr/share/licenses/$pkgname" -m0644 COPYING
