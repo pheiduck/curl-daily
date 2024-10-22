@@ -60,7 +60,7 @@ build() {
   # build curl
   cd "${srcdir}"/build-curl
 
-  "${srcdir}/${pkgbase}-${pkgver}-${pkgrel}"/configure \
+  "${srcdir}/${pkgbase}-${pkgver}-${date}"/configure \
   "${_configure_options[@]}" \
     --enable-versioned-symbols \
     --with-fish-functions-dir=/usr/share/fish/vendor_completions.d/ \
@@ -72,7 +72,7 @@ build() {
   # build libcurl-compat
   cd "${srcdir}"/build-curl-compat
 
-  "${srcdir}/${pkgbase}-${pkgver}-${pkgrel}"/configure \
+  "${srcdir}/${pkgbase}-${pkgver}-${date}"/configure \
     "${_configure_options[@]}" \
     --disable-versioned-symbols \
     --with-openssl \
@@ -84,7 +84,7 @@ build() {
   # build libcurl-gnutls
   cd "${srcdir}"/build-curl-gnutls
 
-  "${srcdir}/${pkgbase}-${pkgver}-${pkgrel}"/configure \
+  "${srcdir}/${pkgbase}-${pkgver}-${date}"/configure \
     "${_configure_options[@]}" \
     --disable-versioned-symbols \
     --with-gnutls \
@@ -103,7 +103,7 @@ package_curl-daily() {
   make -j${nproc} DESTDIR="${pkgdir}" install
   make -j${nproc} DESTDIR="${pkgdir}" install -C scripts
 
-  cd "${srcdir}/${pkgname}-${pkgver}-${pkgrel}"
+  cd "${srcdir}/${pkgname}-${pkgver}-${date}"
 
   # license
   install -Dt "${pkgdir}/usr/share/licenses/$pkgname" -m0644 COPYING
