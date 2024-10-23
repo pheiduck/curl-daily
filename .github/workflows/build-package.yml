@@ -92,7 +92,7 @@ jobs:
         run: |
           _ver=$(curl -s https://raw.githubusercontent.com/curl/curl/master/include/curl/curlver.h | awk -F\" '/#define LIBCURL_VERSION/ {print $2}' | sed 's/-DEV//')
           _rel=$(cat PKGBUILD | sed -n "13p" | cut -c8)
-          _tag=${_ver}-${_rel}
+          _tag=${_ver}-${{ steps.time.outputs.time }}
           echo ${{ github.token }} | gh auth login --with-token
           gh release create ${_tag} --title ${_tag} --repo ${{ github.repository }} --notes "automated release" || echo "release already exists"
           GITHUB_LINK=https://github.com/${GITHUB_REPOSITORY}/releases/download/${_tag}
