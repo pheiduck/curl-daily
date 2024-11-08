@@ -36,7 +36,8 @@ source=("${url}/snapshots/${pkgbase}-${pkgver}-${date}.tar.xz")
 sha512sums=('SKIP')
 
 pkgver() {
-  git describe --long --abbrev=7 --tags | sed 's/^curl[_-]*//; s/_/./g; s/\([^-]*\)-g.*/r\1/; s/-/./g'
+  curl -s https://raw.githubusercontent.com/curl/curl/master/include/curl/curlver.h | \
+  awk -F\" '/#define LIBCURL_VERSION/ {print $2}' | sed 's/-DEV//'
 }
 
 build() {
