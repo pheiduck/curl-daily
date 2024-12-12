@@ -9,7 +9,7 @@
 
 pkgbase=curl
 pkgname=(curl-daily libcurl-compat-daily libcurl-gnutls-daily)
-pkgver=8.11.1
+pkgver=8.11.2
 pkgrel=1
 epoch=1
 pkgdesc='command line tool and library for transferring data with URLs'
@@ -34,11 +34,6 @@ validpgpkeys=('27EDEAF22F3ABCEB50DB9A125CC908FDB71E12C2') # Daniel Stenberg
 date=$(date '+%Y%m%d')
 source=("${url}/snapshots/${pkgbase}-${pkgver}-${date}.tar.xz")
 sha512sums=('SKIP')
-
-pkgver() {
-  curl -s https://raw.githubusercontent.com/curl/curl/master/include/curl/curlver.h | \
-  awk -F\" '/#define LIBCURL_VERSION/ {print $2}' | sed 's/-DEV//'
-}
 
 build() {
   local _configure_options=(
