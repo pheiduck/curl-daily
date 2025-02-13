@@ -9,7 +9,7 @@
 
 pkgbase=curl
 pkgname=(curl-daily libcurl-compat-daily libcurl-gnutls-daily)
-pkgver=8.12.1
+pkgver=8.12.2
 pkgrel=1
 epoch=1
 pkgdesc='command line tool and library for transferring data with URLs'
