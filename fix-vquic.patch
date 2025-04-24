@@ -1,4 +1,7 @@
---- lib/vquic/curl_osslq.c
+diff --git a/lib/vquic/curl_osslq.c b/lib/vquic/curl_osslq.c
+index abcdef0..1234567 100644
+--- a/lib/vquic/curl_osslq.c
++++ b/lib/vquic/curl_osslq.c
 +++ lib/vquic/curl_osslq.c
 @@ -285,7 +285,7 @@ struct cf_osslq_ctx {
 -  struct uint_hash streams;          /* hash `data->mid` to `h3_stream_ctx` */
@@ -24,7 +27,10 @@
 @@ -1525,7 +1525,7 @@ static CURLcode cf_osslq_check_and_unblock(struct cf_osslq_ctx *ctx)
 -    if(ctx->items_max < Curl_uint_hash_count(&ctx->streams)) {
 +    if(ctx->items_max < Curl_hash_count(&ctx->streams)) {
---- lib/vquic/vquic_int.h
+diff --git a/lib/vquic/vquic_int.h b/lib/vquic/vquic_int.h
+index fedcba1..7654321 100644
+--- a/lib/vquic/vquic_int.h
++++ b/lib/vquic/vquic_int.h
 +++ lib/vquic/vquic_int.h
 @@ -52,7 +52,7 @@
 -#define H3_STREAM_CTX(ctx, data) \
