@@ -35,17 +35,18 @@ date=$(date '+%Y%m%d')
 source=("${url}/snapshots/${pkgbase}-${pkgver}-${date}.tar.xz")
 sha512sums=('SKIP')
 
-# Workaround: fallback to old Curl_hash API when uint_hash is unavailable
+# Workaround: rename uint_hash API to compiler-suggested uint_tbl API
 prepare() {
   cd "${srcdir}/${pkgbase}-${pkgver}-${date}"
   sed -i \
-    -e 's/struct uint_hash/struct Curl_hash/g' \
-    -e 's/Curl_uint_hash_init/Curl_hash_offt_init/g' \
-    -e 's/Curl_uint_hash_destroy/Curl_hash_clean/g' \
-    -e 's/Curl_uint_hash_get/Curl_hash_of_key/g' \
-    -e 's/Curl_uint_hash_set/Curl_hash_add/g' \
-    -e 's/Curl_uint_hash_remove/Curl_hash_remove_by_key/g' \
-    -e 's/Curl_uint_hash_count/Curl_hash_count/g' \
+    -e 's/struct uint_hash/struct uint_tbl/g' \
+    -e 's/Curl_uint_hash_init/Curl_uint_tbl_init/g' \
+    -e 's/Curl_uint_hash_destroy/Curl_uint_tbl_destroy/g' \
+    -e 's/Curl_uint_hash_get/Curl_uint_tbl_get/g' \
+    -e 's/Curl_uint_hash_set/Curl_uint_tbl_set/g' \
+    -e 's/Curl_uint_hash_remove/Curl_uint_tbl_remove/g' \
+    -e 's/Curl_uint_hash_visit/Curl_uint_tbl_visit/g' \
+    -e 's/Curl_uint_hash_count/Curl_uint_tbl_count/g' \
     lib/vquic/curl_osslq.c
 }
 
