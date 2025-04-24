@@ -8,48 +8,27 @@ Subject: [PATCH] Replace uint_hash usage with Curl_hash API in vquic code
 @@ -285,7 +285,7 @@ struct cf_osslq_ctx {
 -  struct uint_hash streams;          /* hash `data->mid` to `h3_stream_ctx` */
 +  struct Curl_hash streams;          /* hash `data->mid` to `h3_stream_ctx` */
- }
- 
---- cf_osslq_ctx_init(struct cf_osslq_ctx *ctx)
 @@ -306,7 +306,7 @@ cf_osslq_ctx_init(struct cf_osslq_ctx *ctx)
 -  Curl_uint_hash_init(&ctx->streams, 63, h3_stream_hash_free);
 +  Curl_hash_init(&ctx->streams, 63, h3_stream_hash_free);
- }
- 
---- cf_osslq_ctx_free(struct cf_osslq_ctx *ctx)
 @@ -316,7 +316,7 @@ cf_osslq_ctx_free(struct cf_osslq_ctx *ctx)
 -    Curl_uint_hash_destroy(&ctx->streams);
 +    Curl_hash_clean(&ctx->streams);
- }
- 
---- h3_data_setup(struct cf_osslq_ctx *ctx, struct cf_data *data)
-@@ -610,7 +610,7 @@ h3_data_setup(struct cf_osslq_ctx *ctx,
+@@ -610,7 +610,7 @@ h3_data_setup(struct cf_osslq_ctx *ctx, struct cf_data *data)
 -  struct h3_stream_ctx *stream = H3_STREAM_CTX(ctx, data);
 +  struct h3_stream_ctx *stream = data ? Curl_hash_get(&ctx->streams, data->mid) : NULL;
- 
-   /* ... */
-@@ -632,7 +632,7 @@ h3_data_setup(struct cf_osslq_ctx *ctx,
+@@ -632,7 +632,7 @@ h3_data_setup(struct cf_osslq_ctx *ctx, struct cf_data *data)
 -  if(!Curl_uint_hash_set(&ctx->streams, data->mid, stream)) {
 +  if(!Curl_hash_add(&ctx->streams, data->mid, stream)) {
-     ret = CURLE_OUT_OF_MEMORY;
-     goto out;
-@@ -658,7 +658,7 @@ h3_data_done(struct cf_osslq_ctx *ctx,
+@@ -658,7 +658,7 @@ h3_data_done(struct cf_osslq_ctx *ctx, struct cf_data *data)
 -    Curl_uint_hash_remove(&ctx->streams, data->mid);
 +    Curl_hash_remove_by_key(&ctx->streams, data->mid);
- }
- 
---- cf_osslq_get_qstream(struct cf_osslq_ctx *ctx, unsigned int id)
-@@ -703,7 +703,7 @@ cf_osslq_get_qstream(struct cf_osslq_ctx *c
+@@ -703,7 +703,7 @@ cf_osslq_get_qstream(struct cf_osslq_ctx *ctx, unsigned int id)
 -     Curl_uint_hash_visit(&ctx->streams, cf_osslq_find_stream, &fctx);
 +     Curl_hash_foreach(&ctx->streams, cf_osslq_find_stream, &fctx);
- 
---- cf_osslq_check_and_unblock(struct cf_osslq_ctx *ctx)
-@@ -1521,7 +1521,7 @@ cf_osslq_check_and_unblock(struct cf_osslq_c
+@@ -1521,7 +1521,7 @@ cf_osslq_check_and_unblock(struct cf_osslq_ctx *ctx)
 -    if(ctx->items_max < Curl_uint_hash_count(&ctx->streams)) {
 +    if(ctx->items_max < Curl_hash_count(&ctx->streams)) {
-     /* ... */
- }
- 
 --- a/lib/vquic/vquic_int.h
 +++ b/lib/vquic/vquic_int.h
 @@ -52,7 +52,7 @@
