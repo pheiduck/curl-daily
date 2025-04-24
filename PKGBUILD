@@ -35,7 +35,7 @@ date=$(date '+%Y%m%d')
 source=("${url}/snapshots/${pkgbase}-${pkgver}-${date}.tar.xz")
 sha512sums=('SKIP')
 
-# Workaround: rename uint_hash API to compiler-suggested uint_tbl API and patch vquic_int.h
+# Workaround: patch vquic code for uint_tbl API changes
 prepare() {
   cd "${srcdir}/${pkgbase}-${pkgver}-${date}"
   # Patch curl_osslq.c
@@ -48,6 +48,12 @@ prepare() {
     -e 's/Curl_uint_hash_remove/Curl_uint_tbl_remove/g' \
     -e 's/Curl_uint_hash_visit/Curl_uint_tbl_visit/g' \
     -e 's/Curl_uint_hash_count/Curl_uint_tbl_count/g' \
+    lib/vquic/curl_osslq.c
+  # Adapt Tbl API: remove size arg and rename operations
+  sed -i \
+    -e 's/Curl_uint_tbl_init(&ctx->streams, *[0-9]\+, *\([^)]\+\))/Curl_uint_tbl_init(&ctx->streams, \1)/' \
+    -e 's/Curl_uint_tbl_set/Curl_uint_tbl_insert/g' \
+    -e 's/Curl_uint_tbl_visit/Curl_uint_tbl_foreach/g' \
     lib/vquic/curl_osslq.c
   # Patch vquic_int.h for H3_STREAM_CTX macro
   sed -i \
