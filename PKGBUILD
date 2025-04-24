@@ -32,8 +32,17 @@ provides=('libcurl.so')
 conflicts=('curl' 'libcurl-compat' 'libcurl-gnutls')
 validpgpkeys=('27EDEAF22F3ABCEB50DB9A125CC908FDB71E12C2') # Daniel Stenberg
 date=$(date '+%Y%m%d')
-source=("${url}/snapshots/${pkgbase}-${pkgver}-${date}.tar.xz")
-sha512sums=('SKIP')
+source=(
+  "${url}/snapshots/${pkgbase}-${pkgver}-${date}.tar.xz"
+  "fix-vquic.patch"
+)
+sha512sums=('SKIP' 'SKIP')
+
+# Apply patches to fix vquic code errors
+prepare() {
+  cd "${srcdir}/${pkgbase}-${pkgver}-${date}"
+  patch -p1 < "${srcdir}/fix-vquic.patch"
+}
 
 build() {
   local _configure_options=(
