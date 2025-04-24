@@ -35,9 +35,10 @@ date=$(date '+%Y%m%d')
 source=("${url}/snapshots/${pkgbase}-${pkgver}-${date}.tar.xz")
 sha512sums=('SKIP')
 
-# Workaround: rename uint_hash API to compiler-suggested uint_tbl API
+# Workaround: rename uint_hash API to compiler-suggested uint_tbl API and patch vquic_int.h
 prepare() {
   cd "${srcdir}/${pkgbase}-${pkgver}-${date}"
+  # Patch curl_osslq.c
   sed -i \
     -e 's/struct uint_hash/struct uint_tbl/g' \
     -e 's/Curl_uint_hash_init/Curl_uint_tbl_init/g' \
@@ -48,6 +49,10 @@ prepare() {
     -e 's/Curl_uint_hash_visit/Curl_uint_tbl_visit/g' \
     -e 's/Curl_uint_hash_count/Curl_uint_tbl_count/g' \
     lib/vquic/curl_osslq.c
+  # Patch vquic_int.h for H3_STREAM_CTX macro
+  sed -i \
+    -e 's/Curl_uint_hash_get/Curl_uint_tbl_get/g' \
+    lib/vquic/vquic_int.h
 }
 
 build() {
