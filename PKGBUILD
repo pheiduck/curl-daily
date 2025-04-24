@@ -35,30 +35,6 @@ date=$(date '+%Y%m%d')
 source=("${url}/snapshots/${pkgbase}-${pkgver}-${date}.tar.xz")
 sha512sums=('SKIP')
 
-# Workaround: patch vquic code to remove unsupported uint_tbl args and fallback
-prepare() {
-  cd "${srcdir}/${pkgbase}-${pkgver}-${date}"
-  # Patch curl_osslq.c
-  # 1) Rename struct and functions
-  sed -i \
-    -e 's/struct uint_hash/struct uint_tbl/g' \
-    -e 's/Curl_uint_hash_init/Curl_uint_tbl_init/g' \
-    -e 's/Curl_uint_hash_destroy/Curl_uint_tbl_destroy/g' \
-    -e 's/Curl_uint_hash_get/Curl_uint_tbl_get/g' \
-    -e 's/Curl_uint_hash_set/Curl_uint_tbl_insert/g' \
-    -e 's/Curl_uint_hash_remove/Curl_uint_tbl_remove/g' \
-    -e 's/Curl_uint_hash_visit/Curl_uint_tbl_foreach/g' \
-    -e 's/Curl_uint_hash_count/Curl_uint_tbl_count/g' \
-    lib/vquic/curl_osslq.c
-  # 2) Remove the size argument from Curl_uint_tbl_init
-  sed -i -E 's#Curl_uint_tbl_init\(&ctx->streams,[[:space:]]*[0-9]+,[[:space:]]*([^)]*)\)#Curl_uint_tbl_init(&ctx->streams, \1)#' \
-    lib/vquic/curl_osslq.c
-  # Patch vquic_int.h for H3_STREAM_CTX macro rename
-  sed -i \
-    -e 's/Curl_uint_hash_get/Curl_uint_tbl_get/g' \
-    lib/vquic/vquic_int.h
-}
-
 build() {
   local _configure_options=(
     --prefix='/usr'
