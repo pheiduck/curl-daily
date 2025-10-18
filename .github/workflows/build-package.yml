@@ -50,6 +50,7 @@ jobs:
           popd
       - id: install_keyrings
         run: |
+          sudo sed -i '/^[[:space:]]*SigLevel/s/^/#/' /etc/pacman.conf
           sudo install -dm755 /usr/share/pacman/keyrings/
           sudo git clone -q --depth 1 https://gitlab.manjaro.org/packages/core/manjaro-keyring.git
           pushd manjaro-keyring
