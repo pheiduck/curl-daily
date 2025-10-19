@@ -39,6 +39,7 @@ jobs:
                       -Ddoxygen=enabled \
                       -Dscriptlet-shell=/usr/bin/bash \
                       -Dldconfig=/usr/bin/ldconfig \
+                      -Dgpgme=enabled \
                       build
           sudo meson compile -C build
           sudo meson install -C build
