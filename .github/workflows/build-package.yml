@@ -6,7 +6,7 @@ on:
   
 jobs:
   build_package:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ github.token }}
     strategy:
@@ -16,9 +16,7 @@ jobs:
     steps:
       - run: sudo rm -f /etc/apt/sources.list.d/*
       - id: install_build-dependencies
-        uses: awalsh128/cache-apt-pkgs-action@latest
-        with:
-          packages: build-essential cmake fakeroot git libarchive-dev libarchive-tools libcurl4-openssl-dev libgpgme-dev libssl-dev libarchive-dev zip zstd
+        run: sudo apt update && sudo apt install -y build-essential cmake fakeroot git libarchive-dev libarchive-tools libcurl4-openssl-dev libgpgme-dev libssl-dev libarchive-dev zip zstd
       - name: Free disk space
         run: |
           sudo mv -v /usr/local /usr/local.trash
@@ -39,7 +37,6 @@ jobs:
                       -Ddoxygen=enabled \
                       -Dscriptlet-shell=/usr/bin/bash \
                       -Dldconfig=/usr/bin/ldconfig \
-                      -Dgpgme=enabled \
                       build
           sudo meson compile -C build
           sudo meson install -C build
