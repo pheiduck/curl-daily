@@ -14,7 +14,6 @@ jobs:
         PACKAGE: [curl-daily]
         REPO: [pheiduck]
     steps:
-      - run: sudo rm -f /etc/apt/sources.list.d/*
       - id: install_build-dependencies
         run: sudo apt update && sudo apt install -y build-essential cmake fakeroot git libarchive-dev libarchive-tools libcurl4-openssl-dev libgpgme-dev libssl-dev libarchive-dev zip zstd
       - name: Free disk space
